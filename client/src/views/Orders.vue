@@ -27,6 +27,52 @@
         </div>
       </div>
 
+      <div v-if="restockingOrders.length > 0" class="card">
+        <div class="card-header">
+          <h3 class="card-title">{{ t('orders.submittedOrders') }} ({{ restockingOrders.length }})</h3>
+        </div>
+        <div class="table-container">
+          <table class="orders-table">
+            <thead>
+              <tr>
+                <th class="col-order-number">{{ t('orders.table.orderNumber') }}</th>
+                <th class="col-items">{{ t('orders.table.items') }}</th>
+                <th class="col-status">{{ t('orders.table.status') }}</th>
+                <th class="col-date">{{ t('orders.submittedDate') }}</th>
+                <th class="col-date">{{ t('orders.leadTime') }}</th>
+                <th class="col-date">{{ t('orders.table.expectedDelivery') }}</th>
+                <th class="col-value">{{ t('orders.table.totalValue') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="order in restockingOrders" :key="order.id">
+                <td class="col-order-number"><strong>{{ order.order_number }}</strong></td>
+                <td class="col-items">
+                  <details class="items-details">
+                    <summary class="items-summary">
+                      {{ t('orders.itemsCount', { count: order.items.length }) }}
+                    </summary>
+                    <div class="items-dropdown">
+                      <div v-for="item in order.items" :key="item.sku" class="item-entry">
+                        <span class="item-name">{{ translateProductName(item.name) }}</span>
+                        <span class="item-meta">{{ t('orders.quantity') }}: {{ item.quantity }} @ {{ currencySymbol }}{{ item.unit_cost }}</span>
+                      </div>
+                    </div>
+                  </details>
+                </td>
+                <td class="col-status">
+                  <span class="badge info">{{ restockingStatusLabel(order.status) }}</span>
+                </td>
+                <td class="col-date">{{ formatDate(order.submitted_date) }}</td>
+                <td class="col-date">{{ t('orders.daysCount', { count: order.lead_time_days }) }}</td>
+                <td class="col-date">{{ formatDate(order.expected_delivery) }}</td>
+                <td class="col-value"><strong>{{ currencySymbol }}{{ order.total_value.toLocaleString() }}</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">{{ t('orders.allOrders') }} ({{ orders.length }})</h3>
@@ -95,6 +141,7 @@ export default {
     const loading = ref(true)
     const error = ref(null)
     const orders = ref([])
+    const restockingOrders = ref([])
 
     // Use shared filters
     const {
@@ -122,6 +169,24 @@ export default {
       } finally {
         loading.value = false
       }
+    }
+
+    // Restocking orders are independent of global filters; a failure here
+    // must not break the main orders table, so it is isolated and swallowed.
+    const loadRestockingOrders = async () => {
+      try {
+        restockingOrders.value = await api.getRestockingOrders()
+      } catch (err) {
+        console.error('Failed to load restocking orders:', err)
+        restockingOrders.value = []
+      }
+    }
+
+    // Status is "Submitted"; reuse existing status translation when available
+    const restockingStatusLabel = (status) => {
+      const key = `status.${String(status).toLowerCase()}`
+      const label = t(key)
+      return label === key ? status : label
     }
 
     // Watch for filter changes and reload data
@@ -153,13 +218,18 @@ export default {
       })
     }
 
-    onMounted(loadOrders)
+    onMounted(() => {
+      loadOrders()
+      loadRestockingOrders()
+    })
 
     return {
       t,
       loading,
       error,
       orders,
+      restockingOrders,
+      restockingStatusLabel,
       getOrdersByStatus,
       getOrderStatusClass,
       formatDate,

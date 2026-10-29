@@ -6,6 +6,7 @@ export default {
     orders: 'Orders',
     finance: 'Finance',
     demandForecast: 'Demand Forecast',
+    restocking: 'Restocking',
     companyName: 'Catalyst Components',
     subtitle: 'Inventory Management System'
   },
@@ -106,6 +107,10 @@ export default {
     title: 'Orders',
     description: 'View and manage customer orders',
     allOrders: 'All Orders',
+    submittedOrders: 'Submitted Orders',
+    leadTime: 'Lead Time',
+    submittedDate: 'Submitted',
+    daysCount: '{count} days',
     totalOrders: 'Total Orders',
     totalRevenue: 'Total Revenue',
     avgOrderValue: 'Avg Order Value',
@@ -188,6 +193,38 @@ export default {
     }
   },
 
+  // Restocking
+  restocking: {
+    title: 'Restocking',
+    description: 'Plan restock purchases for items with rising demand within a budget',
+    budget: 'Restocking Budget',
+    budgetHint: 'Items are filled in order of highest demand increase first',
+    itemsRecommended: 'Items Recommended',
+    totalCost: 'Total Cost',
+    remainingBudget: 'Remaining Budget',
+    deliveryLeadTime: 'Delivery Lead Time',
+    daysCount: '{count} days',
+    recommendations: 'Recommended Restock',
+    partial: 'partial',
+    placeOrder: 'Place Order',
+    submitting: 'Submitting...',
+    noRecommendations: 'No items fit within the current budget. Increase the budget to see recommendations.',
+    noCandidates: 'No items have forecasted demand above current demand.',
+    orderPlaced: 'Restocking order {orderNumber} was submitted.',
+    viewOrders: 'View in Orders',
+    orderFailed: 'Failed to place order',
+    loadFailed: 'Failed to load demand forecasts',
+    table: {
+      sku: 'SKU',
+      item: 'Item',
+      trend: 'Trend',
+      quantity: 'Restock Qty',
+      unitCost: 'Unit Cost',
+      lineTotal: 'Line Total',
+      leadTime: 'Lead Time'
+    }
+  },
+
   // Filters
   filters: {
     timePeriod: 'Time Period',
@@ -204,6 +241,7 @@ export default {
     shipped: 'Shipped',
     processing: 'Processing',
     backordered: 'Backordered',
+    submitted: 'Submitted',
     inStock: 'In Stock',
     lowStock: 'Low Stock',
     adequate: 'Adequate'

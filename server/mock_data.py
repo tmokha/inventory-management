@@ -35,5 +35,24 @@ recent_transactions = load_json_file('transactions.json')
 # Load purchase orders
 purchase_orders = load_json_file('purchase_orders.json')
 
+# Restocking orders are created at runtime and persisted to disk. The file is
+# gitignored and may not exist yet, so start from an empty list in that case.
+RESTOCKING_ORDERS_FILE = 'restocking_orders.json'
+
+def load_restocking_orders():
+    """Load submitted restocking orders, or an empty list if none exist yet"""
+    if not os.path.exists(os.path.join(DATA_DIR, RESTOCKING_ORDERS_FILE)):
+        return []
+    return load_json_file(RESTOCKING_ORDERS_FILE)
+
+def save_restocking_orders(orders):
+    """Write restocking orders back to disk so they survive server restarts"""
+    # DATA_DIR is resolved at call time so tests can redirect writes to a temp dir
+    filepath = os.path.join(DATA_DIR, RESTOCKING_ORDERS_FILE)
+    with open(filepath, 'w') as f:
+        json.dump(orders, f, indent=2)
+
+restocking_orders = load_restocking_orders()
+
 # All data is now loaded from JSON files in the data/ directory
 # This allows for easier maintenance and updates of the sample data
